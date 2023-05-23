@@ -1366,6 +1366,7 @@ class AzurePlatform(Platform):
             assert (
                 arm_parameters.marketplace
             ), "not set one of marketplace, shared_gallery or vhd."
+            arm_parameters.osdisk_size_in_gb = 32
             # image_info = self._get_image_info(
             #     arm_parameters.location, arm_parameters.marketplace
             # )
