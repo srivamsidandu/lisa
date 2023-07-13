@@ -105,3 +105,5 @@ class CloudHypervisorNodeSchema(BaseLibvirtNodeSchema):
     # Can be obatained from:
     # https://github.com/cloud-hypervisor/rust-hypervisor-firmware
     firmware: str = ""
+    guest_vm_type: str = "NON-CVM"
+    igvm: str = ""
