@@ -3,6 +3,8 @@
 
 import os
 import re
+import secrets
+
 import xml.etree.ElementTree as ET  # noqa: N817
 from pathlib import Path
 from typing import List, Type
@@ -62,8 +64,16 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
             node_context.firmware_path = os.path.join(
                 self.vm_disks_dir, os.path.basename(node_runbook.firmware)
             )
+            if node_runbook.igvm:
+                node_context.igvm_source_path = node_runbook.igvm
+                node_context.igvm_path = os.path.join(
+                    self.vm_disks_dir, os.path.basename(node_runbook.igvm)
+                )
         else:
             node_context.firmware_path = node_runbook.firmware
+            node_context.igvm_path = node_runbook.igvm
+
+        node_context.guest_vm_type = node_runbook.guest_vm_type
 
     def _create_node(
         self,
@@ -76,6 +86,11 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
             self.host_node.shell.copy(
                 Path(node_context.firmware_source_path),
                 Path(node_context.firmware_path),
+            )
+        if node_context.igvm_source_path:
+            self.host_node.shell.copy(
+                Path(node_context.igvm_source_path),
+                Path(node_context.igvm_path),
             )
 
         super()._create_node(
@@ -114,8 +129,20 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
         os_type = ET.SubElement(os, "type")
         os_type.text = "hvm"
 
-        os_kernel = ET.SubElement(os, "kernel")
-        os_kernel.text = node_context.firmware_path
+        # os_kernel = ET.SubElement(os, "kernel")
+        # os_kernel.text = node_context.firmware_path
+        # os_kernel.text = f"/usr/share/cloud-hypervisor/cvm/linux{vcpu_count}-ttyS0.bin"
+
+        if node_context.guest_vm_type == "CVM":
+            os_snp = ET.SubElement(os, "snp")
+            os_snp.text = "on"
+            os_host_data = ET.SubElement(os, "host_data")
+            os_host_data.text = secrets.token_hex(32)
+            os_igvm = ET.SubElement(os, "igvm")
+            os_igvm.text = node_context.igvm_path
+        else:
+            os_kernel = ET.SubElement(os, "kernel")
+            os_kernel.text = node_context.firmware_path
 
         devices = ET.SubElement(domain, "devices")
 
@@ -137,7 +164,10 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
 
         network_driver = ET.SubElement(network_interface, "driver")
         network_driver.attrib["queues"] = str(vcpu_count)
-        network_driver.attrib["iommu"] = "on"
+        if node_context.guest_vm_type == "CVM":
+            network_driver.attrib["iommu"] = "off"
+        else:
+            network_driver.attrib["iommu"] = "on"
 
         self._add_virtio_disk_xml(
             node_context,
@@ -154,6 +184,7 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
         )
 
         xml = ET.tostring(domain, "unicode")
+        self._log.debug(f"libvirt xml: {xml}")
         return xml
 
     def _get_domain_undefine_flags(self) -> int:

@@ -45,6 +45,9 @@ class NodeContext:
     next_disk_index: int = 0
     machine_type: Optional[str] = None
     enable_secure_boot: bool = False
+    guest_vm_type: str = "NON-CVM"
+    igvm_source_path: str = ""
+    igvm_path: str = "/usr/share/cloud-hypervisor/cvm/linux-ttyS0.bin"
 
     console_logger: Optional[QemuConsoleLogger] = None
     domain: Optional[libvirt.virDomain] = None
