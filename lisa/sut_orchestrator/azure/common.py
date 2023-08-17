@@ -1952,7 +1952,7 @@ def get_identity_id(platform: "AzurePlatform") -> Optional[str]:
     # )
     # for role_assigment in role_assigment_object:
     #     return role_assigment.principal_id
-    return "eee6649a-8374-4bc7-828e-41adad281e95"
+    return "f781dc82-f748-4b25-9b85-01e723e9bdcc"
 
 
 def add_system_assign_identity(
@@ -2040,7 +2040,7 @@ def assign_access_policy_to_vm(
 
     new_policy = AccessPolicyEntry(
         tenant_id=tenant_id,
-        object_id="eee6649a-8374-4bc7-828e-41adad281e95",
+        object_id="f781dc82-f748-4b25-9b85-01e723e9bdcc",
         permissions=Permissions(keys=["all"], secrets=["all"], certificates=["all"]),
     )
     current_policies.append(new_policy)
