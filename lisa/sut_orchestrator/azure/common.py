@@ -1922,17 +1922,17 @@ class DataDisk:
 def get_certificate_client(
     vault_url: str, platform: "AzurePlatform"
 ) -> CertificateClient:
-    return CertificateClient(vault_url, platform.credential)
+    return CertificateClient(vault_url, DefaultAzureCredential())
 
 
 def get_secret_client(vault_url: str, platform: "AzurePlatform") -> SecretClient:
-    return SecretClient(vault_url, platform.credential)
+    return SecretClient(vault_url, DefaultAzureCredential())
 
 
 def get_key_vault_management_client(
     platform: "AzurePlatform",
 ) -> KeyVaultManagementClient:
-    return KeyVaultManagementClient(platform.credential, platform.subscription_id)
+    return KeyVaultManagementClient(DefaultAzureCredential(), platform.subscription_id)
 
 
 def get_tenant_id(credential: Any) -> Any:
@@ -1952,7 +1952,7 @@ def get_identity_id(platform: "AzurePlatform") -> Optional[str]:
     # )
     # for role_assigment in role_assigment_object:
     #     return role_assigment.principal_id
-    return "f781dc82-f748-4b25-9b85-01e723e9bdcc"
+    return "eee6649a-8374-4bc7-828e-41adad281e95"
 
 
 def add_system_assign_identity(
@@ -1962,9 +1962,7 @@ def add_system_assign_identity(
     location: str,
     log: Logger,
 ) -> Any:
-    compute_client = ComputeManagementClient(
-        platform.credential, platform.subscription_id
-    )
+    compute_client = get_compute_client(platform)
     params_identity = {"type": "SystemAssigned"}
     params_create = {"location": location, "identity": params_identity}
 
@@ -2040,7 +2038,7 @@ def assign_access_policy_to_vm(
 
     new_policy = AccessPolicyEntry(
         tenant_id=tenant_id,
-        object_id="f781dc82-f748-4b25-9b85-01e723e9bdcc",
+        object_id="eee6649a-8374-4bc7-828e-41adad281e95",
         permissions=Permissions(keys=["all"], secrets=["all"], certificates=["all"]),
     )
     current_policies.append(new_policy)
