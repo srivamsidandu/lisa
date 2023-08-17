@@ -12,6 +12,7 @@ from lisa import (
     notifier,
     schema,
     search_space,
+    transformer,
 )
 from lisa.action import ActionStatus
 from lisa.environment import (
@@ -306,6 +307,11 @@ class LisaRunner(BaseRunner):
             assert (
                 environment.status == EnvironmentStatus.Connected
             ), f"actual: {environment.status}"
+            transformer.run(
+                self._runbook_builder,
+                phase=constants.TRANSFORMER_PHASE_ENVIRONMENT_CONNECTED,
+                environment=environment,
+            )
         except Exception as identifier:
             self._attach_failed_environment_to_result(
                 environment=environment,
