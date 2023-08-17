@@ -13,6 +13,7 @@ from time import sleep
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 import jwt
 import requests
+from azure.mgmt.authorization import AuthorizationManagementClient
 from assertpy import assert_that
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.certificates import (
@@ -1942,35 +1943,16 @@ def get_tenant_id(credential: Any) -> Any:
     return subscription.tenant_id
 
 
-def get_identity_id(platform: "AzurePlatform") -> Any:
-    # # Define constants
-    # graph_api_url = "https://graph.microsoft.com/.default"
-    # request_url = "https://graph.microsoft.com/v1.0/me"
-
-    # # Get a token for the Microsoft Graph API
-    # token_credential = platform.credential
-    # token = token_credential.get_token(graph_api_url)
-
-    # # Set up the API call headers
-    # headers = {
-    #     "Authorization": f"Bearer {token.token}",
-    #     "Content-Type": "application/json",
-    # }
-
-    # # Set a timeout of 10 seconds for the request
-    # response = requests.get(request_url, headers=headers, timeout=10)
-
-    # if response.status_code != 200:
-    #     raise LisaException(
-    #         f"Failed to retrieve user object ID. "
-    #         f"Status code: {response.status_code}. "
-    #         f"Response: {response.text}"
-    #     )
-    # return response.json().get("id")
-    credential = DefaultAzureCredential()
-    token = credential.get_token("https://graph.microsoft.com/.default")
-    object_id = jwt.decode(token.token, verify=False)["oid"]
-    return object_id
+def get_identity_id(platform: "AzurePlatform") -> Optional[str]:
+    auth_management_client = AuthorizationManagementClient(
+        credential=platform.credential, subscription_id=platform.subscription_id
+    )
+    role_assigment_object = (
+        auth_management_client.role_assignments.list_for_subscription()
+    )
+    for role_assigment in role_assigment_object:
+        return role_assigment.principal_id
+    return None
 
 
 def add_system_assign_identity(
