@@ -11,7 +11,7 @@ from pathlib import Path
 from threading import Lock
 from time import sleep
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
-
+import jwt
 import requests
 from assertpy import assert_that
 from azure.identity import DefaultAzureCredential
@@ -1943,30 +1943,34 @@ def get_tenant_id(credential: Any) -> Any:
 
 
 def get_identity_id(platform: "AzurePlatform") -> Any:
-    # Define constants
-    graph_api_url = "https://graph.microsoft.com/.default"
-    request_url = "https://graph.microsoft.com/v1.0/me"
+    # # Define constants
+    # graph_api_url = "https://graph.microsoft.com/.default"
+    # request_url = "https://graph.microsoft.com/v1.0/me"
 
-    # Get a token for the Microsoft Graph API
-    token_credential = platform.credential
-    token = token_credential.get_token(graph_api_url)
+    # # Get a token for the Microsoft Graph API
+    # token_credential = platform.credential
+    # token = token_credential.get_token(graph_api_url)
 
-    # Set up the API call headers
-    headers = {
-        "Authorization": f"Bearer {token.token}",
-        "Content-Type": "application/json",
-    }
+    # # Set up the API call headers
+    # headers = {
+    #     "Authorization": f"Bearer {token.token}",
+    #     "Content-Type": "application/json",
+    # }
 
-    # Set a timeout of 10 seconds for the request
-    response = requests.get(request_url, headers=headers, timeout=10)
+    # # Set a timeout of 10 seconds for the request
+    # response = requests.get(request_url, headers=headers, timeout=10)
 
-    if response.status_code != 200:
-        raise LisaException(
-            f"Failed to retrieve user object ID. "
-            f"Status code: {response.status_code}. "
-            f"Response: {response.text}"
-        )
-    return response.json().get("id")
+    # if response.status_code != 200:
+    #     raise LisaException(
+    #         f"Failed to retrieve user object ID. "
+    #         f"Status code: {response.status_code}. "
+    #         f"Response: {response.text}"
+    #     )
+    # return response.json().get("id")
+    credential = DefaultAzureCredential()
+    token = credential.get_token("https://graph.microsoft.com/.default")
+    object_id = jwt.decode(token.token, verify=False)["oid"]
+    return object_id
 
 
 def add_system_assign_identity(
