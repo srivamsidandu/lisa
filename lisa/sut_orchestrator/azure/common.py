@@ -1944,15 +1944,15 @@ def get_tenant_id(credential: Any) -> Any:
 
 
 def get_identity_id(platform: "AzurePlatform") -> Optional[str]:
-    auth_management_client = AuthorizationManagementClient(
-        credential=platform.credential, subscription_id=platform.subscription_id
-    )
-    role_assigment_object = (
-        auth_management_client.role_assignments.list_for_subscription()
-    )
-    for role_assigment in role_assigment_object:
-        return role_assigment.principal_id
-    return None
+    # auth_management_client = AuthorizationManagementClient(
+    #     credential=platform.credential, subscription_id=platform.subscription_id
+    # )
+    # role_assigment_object = (
+    #     auth_management_client.role_assignments.list_for_subscription()
+    # )
+    # for role_assigment in role_assigment_object:
+    #     return role_assigment.principal_id
+    return "eee6649a-8374-4bc7-828e-41adad281e95"
 
 
 def add_system_assign_identity(
