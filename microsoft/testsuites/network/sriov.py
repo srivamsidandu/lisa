@@ -27,7 +27,7 @@ from lisa.features import NetworkInterface, SerialConsole, StartStop
 from lisa.nic import NicInfo
 from lisa.sut_orchestrator import AZURE
 from lisa.tools import Cat, Ethtool, Firewall, InterruptInspector, Iperf3, Lscpu
-from lisa.util import UnsupportedDistroException, check_till_timeout
+from lisa.util import LisaException, UnsupportedDistroException, check_till_timeout
 from lisa.util.shell import wait_tcp_port_ready
 from microsoft.testsuites.network.common import (
     cleanup_iperf3,
@@ -693,8 +693,24 @@ class Sriov(TestSuite):
                 assert_that(len(initial_pci_interrupts_by_cpus)).described_as(
                     "initial cpu count of interrupts should be equal to cpu count"
                 ).is_equal_to(client_cpu_count)
+                if not client_nic_info.ip_addr:
+                    if "ib" in client_nic_info.name:
+                        continue
+                    else:
+                        raise LisaException(
+                            f"ip address is empty for {client_nic_info.name} on "
+                            f"{client_node.name}"
+                        )
                 matched_server_nic_info: NicInfo
                 for _, server_nic_info in vm_nics[server_node.name].items():
+                    if not server_nic_info.ip_addr:
+                        if "ib" in server_nic_info.name:
+                            continue
+                        else:
+                            raise LisaException(
+                                f"ip address is empty for {server_nic_info.name} on "
+                                f"{server_node.name}"
+                            )
                     if (
                         server_nic_info.ip_addr.rsplit(".", maxsplit=1)[0]
                         == client_nic_info.ip_addr.rsplit(".", maxsplit=1)[0]

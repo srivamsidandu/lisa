@@ -10,6 +10,7 @@ from lisa.features import NetworkInterface
 from lisa.nic import NicInfo
 from lisa.operating_system import BSD
 from lisa.tools import Dhclient, Ip, IpInfo, Kill, Lspci, Ping, Ssh
+from lisa.util import LisaException
 
 
 @retry(exceptions=AssertionError, tries=30, delay=2)
@@ -107,13 +108,28 @@ def sriov_vf_connection_test(
     max_retry_times = 10
     for _, source_nic_info in vm_nics[source_node.name].items():
         matched_dest_nic_name = ""
-
+        if not source_nic_info.ip_addr:
+            if "ib" in source_nic_info.name:
+                continue
+            else:
+                raise LisaException(
+                    f"ip address is empty for {source_nic_info.name} on "
+                    f"{source_node.name}"
+                )
         # find the same subnet nic on dest node
         for dest_nic_name, dest_nic_info in vm_nics[dest_node.name].items():
             # only when IPs are in the same subnet, IP1 of machine A can connect to
             # IP2 of machine B
             # e.g. eth2 IP is 10.0.2.3 on machine A, eth2 IP is 10.0.3.4 on machine
             # B, use nic name doesn't work in this situation
+            if not dest_nic_info.ip_addr:
+                if "ib" in dest_nic_info.name:
+                    continue
+                else:
+                    raise LisaException(
+                        f"ip address is empty for {dest_nic_info.name} on "
+                        f"{dest_node.name}"
+                    )
             if (
                 dest_nic_info.ip_addr.rsplit(".", maxsplit=1)[0]
                 == source_nic_info.ip_addr.rsplit(".", maxsplit=1)[0]
