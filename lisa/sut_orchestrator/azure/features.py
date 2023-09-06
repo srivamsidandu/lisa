@@ -1820,11 +1820,7 @@ class SecurityProfile(AzureFeatureMixin, features.SecurityProfile):
                 node_parameters.security_profile[
                     "security_type"
                 ] = cls._security_profile_mapping[settings.security_profile]
-                node_parameters.security_profile["encryption_type"] = (
-                    "DiskWithVMGuestState"
-                    if settings.encrypt_disk
-                    else "VMGuestStateOnly"
-                )
+                node_parameters.security_profile["encryption_type"] = "NonPersistedTPM"
                 node_parameters.security_profile[
                     "disk_encryption_set_id"
                 ] = settings.disk_encryption_set_id
