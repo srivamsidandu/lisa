@@ -538,7 +538,7 @@
                         "type": "object",
                         "value": {
                             "uefiSettings": {
-                                "secureBootEnabled": "true",
+                                "secureBootEnabled": "false",
                                 "vTpmEnabled": "true"
                             },
                             "securityType": "[parameters('security_profile')['security_type']]"
