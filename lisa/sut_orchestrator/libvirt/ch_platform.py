@@ -15,7 +15,7 @@ from lisa.feature import Feature
 from lisa.node import Node
 from lisa.sut_orchestrator.libvirt.context import NodeContext, get_node_context
 from lisa.sut_orchestrator.libvirt.platform import BaseLibvirtPlatform
-from lisa.tools import QemuImg
+from lisa.tools import Cp, QemuImg
 from lisa.util.logger import Logger, filter_ansi_escape
 
 from .. import CLOUD_HYPERVISOR
@@ -88,10 +88,13 @@ class CloudHypervisorPlatform(BaseLibvirtPlatform):
                 Path(node_context.firmware_path),
             )
         if node_context.igvm_source_path:
-            self.host_node.shell.copy(
-                Path(node_context.igvm_source_path),
-                Path(node_context.igvm_path),
+            self.host_node.tools[Cp].copy(
+                Path(node_context.igvm_source_path), Path(node_context.igvm_path),
             )
+            # self.host_node.shell.copy(
+            #     Path(node_context.igvm_source_path),
+            #     Path(node_context.igvm_path),
+            # )
 
         super()._create_node(
             node,
