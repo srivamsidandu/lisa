@@ -207,7 +207,7 @@ class BareMetalPlatform(Platform):
         node_capabilities = schema.NodeSpace()
         node_capabilities.name = "baremetal"
         node_capabilities.node_count = 1
-        node_capabilities.core_count = search_space.IntRange(min=1, max=1)
+        node_capabilities.core_count = search_space.IntRange(min=1, max=16)
         node_capabilities.disk = schema.DiskOptionSettings(
             data_disk_count=search_space.IntRange(min=0),
             data_disk_size=search_space.IntRange(min=1),
