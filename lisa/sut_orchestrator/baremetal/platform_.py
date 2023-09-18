@@ -37,7 +37,8 @@ class BareMetalPlatform(Platform):
 
     @classmethod
     def supported_features(cls) -> List[Type[feature.Feature]]:
-        return [StartStop, SerialConsole]
+        # return [StartStop, SerialConsole]
+        return [StartStop]
 
     def _initialize(self, *args: Any, **kwargs: Any) -> None:
         baremetal_runbook: BareMetalPlatformSchema = self.runbook.get_extended_runbook(
@@ -225,7 +226,7 @@ class BareMetalPlatform(Platform):
         node_capabilities.features = search_space.SetSpace[schema.FeatureSettings](
             is_allow_set=True,
             items=[
-                schema.FeatureSettings.create(SerialConsole.name()),
+                # schema.FeatureSettings.create(SerialConsole.name()),
                 schema.FeatureSettings.create(StartStop.name()),
             ],
         )
