@@ -83,14 +83,14 @@ class Idrac(Cluster):
     def deploy(self, environment: Environment) -> Any:
         self.login()
         self._eject_virtual_media()
-        self._change_boot_order_once("VCD-DVD")
         assert self.client.iso_http_url, "iso_http_url is required for idrac client"
-        if self.get_power_state() == "Off":
-            self._log.debug("System is already off.")
-        else:
-            self.reset("GracefulShutdown")
+        # if self.get_power_state() == "Off":
+        #     self._log.debug("System is already off.")
+        # else:
+        #     self.reset("GracefulShutdown")
         self._insert_virtual_media(self.client.iso_http_url)
-        self.reset("On")
+        self._change_boot_order_once("VCD-DVD")
+        self.reset("ForceRestart")
         self.logout()
 
     def reset(self, operation: str) -> None:
