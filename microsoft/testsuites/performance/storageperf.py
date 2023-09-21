@@ -54,6 +54,42 @@ class StoragePerformance(TestSuite):
         timeout=TIME_OUT,
         requirement=simple_requirement(
             disk=schema.DiskOptionSettings(
+                data_disk_type=schema.DiskType.UltraSSDLRS,
+                os_disk_type=schema.DiskType.PremiumSSDLRS,
+                data_disk_iops=search_space.IntRange(min=50000),
+                data_disk_count=search_space.IntRange(min=16),
+            ),
+        ),
+    )
+    def perf_ultra_datadisks_4k(self, node: Node, result: TestResult) -> None:
+        self._perf_premium_datadisks(node, result)
+
+    @TestCaseMetadata(
+        description="""
+        This test case uses fio to test data disk performance using 1024K block size.
+        """,
+        priority=3,
+        timeout=TIME_OUT,
+        requirement=simple_requirement(
+            disk=schema.DiskOptionSettings(
+                data_disk_type=schema.DiskType.UltraSSDLRS,
+                os_disk_type=schema.DiskType.PremiumSSDLRS,
+                data_disk_iops=search_space.IntRange(min=50000),
+                data_disk_count=search_space.IntRange(min=16),
+            ),
+        ),
+    )
+    def perf_ultra_datadisks_1024k(self, node: Node, result: TestResult) -> None:
+        self._perf_premium_datadisks(node, result, block_size=1024)
+
+    @TestCaseMetadata(
+        description="""
+        This test case uses fio to test data disk performance with 4K block size.
+        """,
+        priority=3,
+        timeout=TIME_OUT,
+        requirement=simple_requirement(
+            disk=schema.DiskOptionSettings(
                 data_disk_type=schema.DiskType.PremiumSSDLRS,
                 os_disk_type=schema.DiskType.PremiumSSDLRS,
                 data_disk_iops=search_space.IntRange(min=5000),

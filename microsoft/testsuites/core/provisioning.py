@@ -10,6 +10,8 @@ from lisa import (
     Logger,
     PassedException,
     RemoteNode,
+    schema,
+    search_space,
     SkippedException,
     TcpConnectionException,
     TestCaseMetadata,
@@ -147,6 +149,28 @@ class Provisioning(TestSuite):
     ) -> None:
         self._smoke_test(
             log, node, log_path, "verify_deployment_provision_premium_disk"
+        )
+
+    @TestCaseMetadata(
+        description="""
+        This case runs smoke test on a node provisioned with ultra disk.
+        The test steps are same as `smoke_test`.
+        """,
+        priority=4,
+        requirement=simple_requirement(
+            disk=schema.DiskOptionSettings(
+                data_disk_type=schema.DiskType.UltraSSDLRS,
+                os_disk_type=schema.DiskType.StandardHDDLRS,
+                data_disk_iops=search_space.IntRange(min=150000),
+                data_disk_count=search_space.IntRange(min=1),
+            ),
+        ),
+    )
+    def verify_deployment_provision_ultra_disk(
+        self, log: Logger, node: RemoteNode, log_path: Path
+    ) -> None:
+        self._smoke_test(
+            log, node, log_path, "verify_deployment_provision_ultra_disk"
         )
 
     @TestCaseMetadata(
