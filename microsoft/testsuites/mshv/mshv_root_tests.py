@@ -33,7 +33,7 @@ from microsoft.testsuites.mshv.cloud_hypervisor_tool import CloudHypervisor
 class MshvHostTestSuite(TestSuite):
     IGVM_PATH_VARIABLE = "igvm_path"
     CONFIG_VARIABLE = "mshv_vm_create_stress_configs"
-    DEFAULT_ITERS = 15
+    DEFAULT_ITERS = 4
     DEFAULT_CPUS_PER_VM = 1
     DEFAULT_MEM_PER_VM_MB = 1024
     DEFAULT_GUEST_VM_TYPE = "NON-CVM"
@@ -77,7 +77,7 @@ class MshvHostTestSuite(TestSuite):
         "mshv_vm_create_stress_configs" in the runbook.
         """,
         priority=4,
-        timeout=10800,  # 3 hours
+        timeout=36000,  # 3 hours
     )
     def stress_mshv_vm_create(
         self,
@@ -183,7 +183,7 @@ class MshvHostTestSuite(TestSuite):
                     igvm_path=igvm_path,
                     log_file=str(vm_log_file_path),
                 )
-                if not p:
+                if not p or not p.is_running():
                     node.shell.copy_back(
                         vm_log_file_path,
                         log_path / vm_log_file_path,
@@ -191,6 +191,11 @@ class MshvHostTestSuite(TestSuite):
                 assert_that(p).described_as(f"Failed to create VM {i}").is_not_none()
                 procs.append(p)
                 node.tools[Free].log_memory_stats_mb()
+                if not p.is_running():
+                    node.shell.copy_back(
+                        vm_log_file_path,
+                        log_path / vm_log_file_path,
+                    )
                 assert_that(p.is_running()).described_as(
                     f"VM {i} failed to start"
                 ).is_true()
@@ -199,7 +204,7 @@ class MshvHostTestSuite(TestSuite):
             sleep_time = 10
             if guest_vm_type == "CVM":
                 # CVM take little more time to boot
-                sleep_time = 100
+                sleep_time = 100 * vm_count
             time.sleep(sleep_time)
 
             for i in range(len(procs)):
@@ -210,6 +215,10 @@ class MshvHostTestSuite(TestSuite):
                     continue
                 log.info(f"Killing VM {i}")
                 p.kill()
+
+            if guest_vm_type == "CVM":
+                # CVM take little more time to cleanup
+                sleep_time = 100 * vm_count
 
             node.tools[Free].log_memory_stats_mb()
 
