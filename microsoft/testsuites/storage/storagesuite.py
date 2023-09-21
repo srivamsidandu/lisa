@@ -62,6 +62,30 @@ class StorageTest(TestSuite):
         priority=3,
         requirement=simple_requirement(
             disk=schema.DiskOptionSettings(
+                data_disk_type=schema.DiskType.UltraSSDLRS,
+                os_disk_type=schema.DiskType.StandardHDDLRS,
+                data_disk_iops=search_space.IntRange(min=150000),
+                data_disk_count=search_space.IntRange(min=1),
+            ),
+        ),
+    )
+    def verify_ultradisk(self, node: Node, environment: Environment) -> None:
+        disk = node.features[Disk]
+        data_disks = disk.get_raw_data_disks()
+        disk_count = len(data_disks)
+        assert_that(disk_count).described_as(
+            "At least 1 data disk for testing."
+        ).is_greater_than(0)
+
+    @TestCaseMetadata(
+        description="""
+        This test case is to
+            1. Make raid0 based on StandardHDDLRS disks.
+            2. Mount raid0 with nobarrier options.
+        """,
+        priority=3,
+        requirement=simple_requirement(
+            disk=schema.DiskOptionSettings(
                 data_disk_type=schema.DiskType.StandardHDDLRS,
                 os_disk_type=schema.DiskType.StandardHDDLRS,
                 data_disk_iops=search_space.IntRange(min=500),
