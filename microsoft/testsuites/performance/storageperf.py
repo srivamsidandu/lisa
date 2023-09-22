@@ -57,7 +57,7 @@ class StoragePerformance(TestSuite):
                 data_disk_type=schema.DiskType.UltraSSDLRS,
                 os_disk_type=schema.DiskType.PremiumSSDLRS,
                 data_disk_iops=search_space.IntRange(min=160000),
-                data_disk_count=search_space.IntRange(min=4),
+                data_disk_count=search_space.IntRange(min=8),
             ),
         ),
     )
@@ -65,7 +65,6 @@ class StoragePerformance(TestSuite):
         self._perf_premium_datadisks(
             node=node,
             test_result=result,
-            start_iodepth=128,
             max_iodepth=256,
             disk_type=DiskType.ultradisk
         )
@@ -80,13 +79,20 @@ class StoragePerformance(TestSuite):
             disk=schema.DiskOptionSettings(
                 data_disk_type=schema.DiskType.UltraSSDLRS,
                 os_disk_type=schema.DiskType.PremiumSSDLRS,
-                data_disk_iops=search_space.IntRange(min=50000),
-                data_disk_count=search_space.IntRange(min=16),
+                data_disk_iops=search_space.IntRange(min=160000),
+                data_disk_count=search_space.IntRange(min=8),
             ),
         ),
     )
     def perf_ultra_datadisks_1024k(self, node: Node, result: TestResult) -> None:
-        self._perf_premium_datadisks(node, result, block_size=1024)
+        self._perf_premium_datadisks(
+            node=node,
+            test_result=result,
+            max_iodepth=256,
+            block_size=1024,
+            start_iodepth=128,
+            disk_type=DiskType.ultradisk
+        )
 
     @TestCaseMetadata(
         description="""
