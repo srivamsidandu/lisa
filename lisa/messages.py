@@ -145,6 +145,8 @@ DiskType = Enum(
         "nvme",
         "premiumssd",
         "ultradisk",
+        "ultradisknvme",
+        "ultradiskscsi",
     ],
 )
 
