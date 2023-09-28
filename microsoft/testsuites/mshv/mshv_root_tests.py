@@ -18,6 +18,7 @@ from lisa import (
 from lisa.messages import SubTestMessage, TestStatus, create_test_result_message
 from lisa.testsuite import TestResult
 from lisa.tools import Cp, Dmesg, Free, Ls, Lscpu, QemuImg, Rm, Ssh, Usermod, Wget
+from lisa.tools.mkdir import Mkdir
 from lisa.util import SkippedException
 from microsoft.testsuites.mshv.cloud_hypervisor_tool import CloudHypervisor
 
@@ -127,6 +128,14 @@ class MshvHostTestSuite(TestSuite):
                 self._send_subtest_msg(
                     result, environment, test_name, TestStatus.FAILED, repr(e)
                 )
+
+        temp = str(log_path)
+        node.execute(f"sudo mkdir -p {temp}/strace_log", shell=True)
+        node.execute(f"sudo cp -rp /home/lisatest/cl* {temp}/strace_log", shell=True)
+        node.execute(f"sudo chmod -R 777 {temp}/strace_log", shell=True)
+        self._log.debug(node.execute(f"sudo ls -lrt {temp}/strace_log", shell=True).stdout)
+        self._log.debug(node.execute(f"sudo ls -lrt {temp}/strace_log", shell=True).stderr)
+
         self._save_dmesg_logs(node, log_path)
         assert_that(failures).is_equal_to(0)
         return

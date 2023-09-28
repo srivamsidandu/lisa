@@ -10,7 +10,7 @@ from lisa.util.process import Process
 class CloudHypervisor(Tool):
     @property
     def command(self) -> str:
-        return "cloud-hypervisor"
+        return "strace -ff -o clh.log cloud-hypervisor"
 
     @property
     def can_install(self) -> bool:
@@ -44,4 +44,8 @@ class CloudHypervisor(Tool):
             force_run=True,
             shell=True,
             sudo=sudo,
+            update_envs={
+                "RUST_BACKTRACE": "full"
+            },
+            cwd="/home/lisatest"
         )
