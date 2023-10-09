@@ -245,7 +245,7 @@ class Storage(TestSuite):
         requirement=simple_requirement(
             supported_platform_type=[AZURE],
             disk=schema.DiskOptionSettings(
-                disk_controller_type=schema.DiskControllerType.SCSI
+                disk_controller_type=schema.DiskControllerType.NVME
             ),
         ),
     )
