@@ -12,6 +12,7 @@ from lisa import (
     TestCaseMetadata,
     TestSuite,
     TestSuiteMetadata,
+    schema,
     simple_requirement,
 )
 from lisa.features import Disk, Nfs
@@ -243,6 +244,11 @@ class Storage(TestSuite):
         priority=1,
         requirement=simple_requirement(
             supported_platform_type=[AZURE],
+            requirement=simple_requirement(
+                disk=schema.DiskOptionSettings(
+                    disk_controller_type=schema.DiskControllerType.SCSI
+                )
+            ),
         ),
     )
     def verify_disk_controller_type(self, node: RemoteNode) -> None:
