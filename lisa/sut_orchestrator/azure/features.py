@@ -342,6 +342,8 @@ class SerialConsole(AzureFeatureMixin, features.SerialConsole):
             except asyncio.TimeoutError:
                 # this implies that the buffer is empty
                 break
+            finally:
+                self._get_event_loop().close()
 
         # assert isinstance(self._output_string, str)
         if self._output_string in output:
