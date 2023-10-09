@@ -244,10 +244,8 @@ class Storage(TestSuite):
         priority=1,
         requirement=simple_requirement(
             supported_platform_type=[AZURE],
-            requirement=simple_requirement(
-                disk=schema.DiskOptionSettings(
-                    disk_controller_type=schema.DiskControllerType.SCSI
-                )
+            disk=schema.DiskOptionSettings(
+                disk_controller_type=schema.DiskControllerType.SCSI
             ),
         ),
     )
