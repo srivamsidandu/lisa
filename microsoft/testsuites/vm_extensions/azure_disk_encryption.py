@@ -51,6 +51,7 @@ class AzureDiskEncryption(TestSuite):
         node = kwargs["node"]
         if not self._is_supported_linux_distro(node):
             raise SkippedException(UnsupportedDistroException(node.os))
+        node.os.install_packages(["python-parted"])
 
     @TestCaseMetadata(
         description="""
