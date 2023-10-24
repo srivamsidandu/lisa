@@ -776,7 +776,10 @@ class NetworkInterface(AzureFeatureMixin, features.NetworkInterface):
         return sriov_enabled
 
     def attach_nics(
-        self, extra_nic_count: int, enable_accelerated_networking: bool = True
+        self,
+        extra_nic_count: int,
+        enable_accelerated_networking: bool = True,
+        ignore_error: bool = False,
     ) -> None:
         if 0 == extra_nic_count:
             return
@@ -797,10 +800,14 @@ class NetworkInterface(AzureFeatureMixin, features.NetworkInterface):
             self._node.capability.network_interface.max_nic_count
         )
         if nic_count_after_add_extra > node_capability_nic_count:
-            raise LisaException(
-                f"nic count after add extra nics is {nic_count_after_add_extra},"
-                f" it exceeds the vm size's capability {node_capability_nic_count}."
-            )
+            if ignore_error:
+                extra_nic_count = node_capability_nic_count - current_nic_count
+                self._log.debug("ignore error, only add available nics.")
+            else:
+                raise LisaException(
+                    f"nic count after add extra nics is {nic_count_after_add_extra},"
+                    f" it exceeds the vm size's capability {node_capability_nic_count}."
+                )
         nic = self._get_primary(vm.network_profile.network_interfaces)
         assert nic.id, "'nic.id' must not be 'None'"
         nic_name = nic.id.split("/")[-1]

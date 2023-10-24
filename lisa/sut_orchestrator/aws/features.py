@@ -201,7 +201,10 @@ class NetworkInterface(AwsFeatureMixin, features.NetworkInterface):
         return instance.ena_support
 
     def attach_nics(
-        self, extra_nic_count: int, enable_accelerated_networking: bool = True
+        self,
+        extra_nic_count: int,
+        enable_accelerated_networking: bool = True,
+        ignore_error: bool = False,
     ) -> None:
         aws_platform: AwsPlatform = self._platform  # type: ignore
         ec2_resource = boto3.resource("ec2")
@@ -220,10 +223,14 @@ class NetworkInterface(AwsFeatureMixin, features.NetworkInterface):
             self._node.capability.network_interface.max_nic_count
         )
         if nic_count_after_add_extra > node_capability_nic_count:
-            raise LisaException(
-                f"nic count after add extra nics is {nic_count_after_add_extra},"
-                f" it exceeds the vm size's capability {node_capability_nic_count}."
-            )
+            if ignore_error:
+                extra_nic_count = node_capability_nic_count - current_nic_count
+                self._log.debug("ignore error and add extra nics as max count.")
+            else:
+                raise LisaException(
+                    f"nic count after add extra nics is {nic_count_after_add_extra},"
+                    f" it exceeds the vm size's capability {node_capability_nic_count}."
+                )
         nic = self._get_primary(instance.network_interfaces_attribute)
 
         index = current_nic_count

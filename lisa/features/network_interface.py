@@ -31,7 +31,10 @@ class NetworkInterface(Feature):
         raise NotImplementedError
 
     def attach_nics(
-        self, extra_nic_count: int, enable_accelerated_networking: bool = True
+        self,
+        extra_nic_count: int,
+        enable_accelerated_networking: bool = True,
+        ignore_error: bool = False,
     ) -> None:
         raise NotImplementedError
 
