@@ -1126,6 +1126,7 @@ class Ubuntu(Debian):
     # The end of life releases come from
     # https://wiki.ubuntu.com/Releases?_ga=2.7226034.1862489468.1672129506-282537095.1659934740 # noqa: E501
     end_of_life_releases: List[str] = [
+        "Ubuntu 22.10",
         "Ubuntu 21.10",
         "Ubuntu 21.04",
         "Ubuntu 20.10",
