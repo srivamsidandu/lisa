@@ -156,7 +156,7 @@ class GitBisectCombinator(Combinator):
 class GitBisectResult(notifier.Notifier):
     @classmethod
     def type_name(cls) -> str:
-        return ""
+        return "git_bisect_result"
 
     @classmethod
     def type_schema(cls) -> Type[schema.TypedSchema]:
