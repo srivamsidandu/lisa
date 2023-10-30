@@ -198,7 +198,7 @@ class Provisioning(TestSuite):
         This case runs smoke test on a node provisioned with an ultra datadisk.
         The test steps are same as `smoke_test`.
         """,
-        priority=1,
+        priority=0,
         requirement=simple_requirement(
             disk=schema.DiskOptionSettings(
                 data_disk_type=schema.DiskType.UltraSSDLRS,
