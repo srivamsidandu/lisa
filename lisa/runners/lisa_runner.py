@@ -114,6 +114,8 @@ class LisaRunner(BaseRunner):
             return delete_task
 
         if available_results and available_environments:
+            for env in available_environments:
+                self._log.info(env.name)
             for priority in range(6):
                 can_run_results = self._get_results_by_priority(
                     available_results, priority
@@ -623,8 +625,8 @@ class LisaRunner(BaseRunner):
                     ):
                         runnable_results.append(result)
                 except SkippedException as identifier:
-                    if not result.environment:
-                        result.environment = environment
+                    # if not result.environment:
+                    #     result.environment = environment
                     # when check the environment, the test result may be marked
                     # as skipped, due to the test result is assumed not to match
                     # any environment.
