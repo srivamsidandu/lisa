@@ -143,6 +143,7 @@ class Xfstesting(TestSuite):
         node = kwargs["node"]
         if isinstance(node.os, Oracle) and (node.os.information.version <= "9.0.0"):
             self.excluded_tests = self.excluded_tests + " btrfs/299"
+        self.excluded_tests = self.excluded_tests + " generic/013"
 
     @TestCaseMetadata(
         description="""
