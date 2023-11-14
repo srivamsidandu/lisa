@@ -1,11 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-
 import random
 import re
 import string
 import sys
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
 from threading import Lock
 from time import sleep
@@ -18,8 +18,10 @@ from typing import (
     List,
     Optional,
     Pattern,
+    Tuple,
     Type,
     TypeVar,
+    Union,
     cast,
 )
 
@@ -28,6 +30,7 @@ import pluggy
 from assertpy import assert_that
 from dataclasses_json import config
 from marshmallow import fields
+from retry import retry
 from semver import VersionInfo
 
 from lisa import secret
@@ -305,6 +308,10 @@ class SshSpawnTimeoutException(LisaException):
     This exception is used to indicate a timeout while spawning a process
     using SshShell.
     """
+
+
+class RetryException(Exception):
+    pass
 
 
 class ContextMixin:
@@ -750,3 +757,37 @@ def check_till_timeout(
         sleep(interval)
     if timer.elapsed() >= timeout:
         raise LisaException(f"timeout: {timeout_message}")
+
+
+def retry_without_exceptions(
+    skipped_exceptions: List[Type[Exception]],
+    tries: int = -1,
+    delay: float = 0,
+    max_delay: Optional[float] = None,
+    backoff: float = 1,
+    jitter: Union[Tuple[float, float], float] = 0,
+    logger: Optional["Logger"] = None,
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @wraps(func)
+        @retry(
+            exceptions=RetryException,
+            tries=tries,
+            delay=delay,
+            max_delay=max_delay,
+            backoff=backoff,
+            jitter=jitter,
+            logger=logger,
+        )
+        def wrapper(*args: object, **kwargs: object) -> T:
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if any(isinstance(e, ex_type) for ex_type in skipped_exceptions):
+                    raise
+                else:
+                    raise RetryException("Retry for non-skipped exceptions") from e
+
+        return wrapper
+
+    return decorator
