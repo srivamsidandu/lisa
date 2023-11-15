@@ -26,7 +26,7 @@ from lisa.base_tools import Systemctl
 from lisa.features import NetworkInterface, SerialConsole, StartStop
 from lisa.nic import NicInfo
 from lisa.sut_orchestrator import AZURE
-from lisa.tools import Cat, Ethtool, Firewall, InterruptInspector, Iperf3, Lscpu
+from lisa.tools import Cat, Ethtool, Firewall, InterruptInspector, Iperf3, Lscpu, Kill
 from lisa.util import UnsupportedDistroException, check_till_timeout
 from lisa.util.shell import wait_tcp_port_ready
 from microsoft.testsuites.network.common import (
@@ -533,6 +533,7 @@ class Sriov(TestSuite):
         dest_iperf3.run_as_client_async(
             server_ip=server_node.internal_address,
             log_file=client_iperf3_log,
+            run_time_seconds=self.TIME_OUT,
         )
 
         # wait for a while then check any error shown up in iperfResults.log
@@ -629,6 +630,10 @@ class Sriov(TestSuite):
 
         # check there is no error happen in iperf3 log
         # after above operations
+
+        client_kill = client_node.tools[Kill]
+        client_kill.by_name("iperf3")
+
         dest_cat = client_node.tools[Cat]
         iperf_log = dest_cat.read(client_iperf3_log, sudo=True, force_run=True)
         assert_that(iperf_log).does_not_contain("error")
