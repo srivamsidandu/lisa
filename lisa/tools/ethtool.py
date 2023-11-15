@@ -494,12 +494,12 @@ class Ethtool(Tool):
         posix_os.install_packages("ethtool")
         return self._check_exists()
 
-    def get_device_driver(self, interface: str) -> str:
+    def get_device_driver(self, interface: str, force_run: bool = False) -> str:
         _device_driver_pattern = re.compile(
             r"^[\s]*driver:(?P<value>.*?)?$", re.MULTILINE
         )
 
-        cmd_result = self.run(f"-i {interface}")
+        cmd_result = self.run(f"-i {interface}", force_run=force_run)
         cmd_result.assert_exit_code(
             message=f"Could not find the driver information for {interface}"
         )
@@ -527,7 +527,7 @@ class Ethtool(Tool):
             cmd_result.assert_exit_code(message="Could not find the network device.")
             for result in cmd_result.stdout.split():
                 # add only the network devices with netvsc driver
-                driver = self.get_device_driver(result)
+                driver = self.get_device_driver(result, force_run=force_run)
                 if "hv_netvsc" in driver:
                     self._device_set.add(result)
 
