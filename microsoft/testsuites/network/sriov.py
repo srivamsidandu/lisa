@@ -533,7 +533,6 @@ class Sriov(TestSuite):
         dest_iperf3.run_as_client_async(
             server_ip=server_node.internal_address,
             log_file=client_iperf3_log,
-            run_time_seconds=600,
         )
 
         # wait for a while then check any error shown up in iperfResults.log
