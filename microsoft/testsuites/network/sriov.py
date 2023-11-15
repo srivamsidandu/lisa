@@ -631,8 +631,8 @@ class Sriov(TestSuite):
         # check there is no error happen in iperf3 log
         # after above operations
 
-        client_kill = client_node.tools[Kill]
-        client_kill.by_name("iperf3")
+        # client_kill = client_node.tools[Kill]
+        # client_kill.by_name("iperf3")
 
         dest_cat = client_node.tools[Cat]
         iperf_log = dest_cat.read(client_iperf3_log, sudo=True, force_run=True)
@@ -768,4 +768,4 @@ class Sriov(TestSuite):
 
     def after_case(self, log: Logger, **kwargs: Any) -> None:
         environment: Environment = kwargs.pop("environment")
-        cleanup_iperf3(environment)
+        # cleanup_iperf3(environment)
