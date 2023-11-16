@@ -113,6 +113,7 @@ class Node(subclasses.BaseClassWithRunbookMixin, ContextMixin, InitializableMixi
         self.capture_azure_information: bool = False
         self.capture_kernel_config: bool = False
         self.has_checked_bash_prompt: bool = False
+        self.capture_vm_information: bool = True
 
     @property
     def shell(self) -> Shell:

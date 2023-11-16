@@ -193,6 +193,7 @@ class Platform(subclasses.BaseClassWithRunbookMixin, InitializableMixin):
             node.capture_kernel_config = (
                 platform_runbook.capture_kernel_config_information
             )
+            node.capture_vm_information = platform_runbook.capture_vm_information
 
             if platform_runbook.guest_enabled:
                 self._initialize_guest_nodes(node)

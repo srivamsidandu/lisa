@@ -747,44 +747,51 @@ class AzurePlatform(Platform):
 
     def _get_node_information(self, node: Node) -> Dict[str, str]:
         information: Dict[str, Any] = {}
-        for key, method in self._environment_information_hooks.items():
-            node.log.debug(f"detecting {key} ...")
-            try:
-                value = method(node)
-                if value:
-                    information[key] = value
-            except Exception as identifier:
-                node.log.exception(f"error on get {key}.", exc_info=identifier)
+        if node.capture_vm_information:
+            for key, method in self._environment_information_hooks.items():
+                node.log.debug(f"detecting {key} ...")
+                try:
+                    value = method(node)
+                    if value:
+                        information[key] = value
+                except Exception as identifier:
+                    node.log.exception(f"error on get {key}.", exc_info=identifier)
 
-        if node.is_connected and node.is_posix:
-            node.log.debug("detecting lis version...")
-            modinfo = node.tools[Modinfo]
-            information["lis_version"] = modinfo.get_version("hv_vmbus")
+            if node.is_connected and node.is_posix:
+                node.log.debug("detecting lis version...")
+                modinfo = node.tools[Modinfo]
+                information["lis_version"] = modinfo.get_version("hv_vmbus")
 
-            node.log.debug("detecting vm generation...")
-            information[KEY_VM_GENERATION] = node.tools[VmGeneration].get_generation()
-            node.log.debug(f"vm generation: {information[KEY_VM_GENERATION]}")
-            if node.capture_kernel_config:
-                node.log.debug("detecting mana driver enabled...")
-                information[
-                    KEY_MANA_DRIVER_ENABLED
-                ] = node.nics.is_mana_driver_enabled()
-                node.log.debug(f"mana enabled: {information[KEY_MANA_DRIVER_ENABLED]}")
-                node.log.debug("detecting nvme driver enabled...")
-                _has_nvme_core = node.tools[KernelConfig].is_built_in(
-                    "CONFIG_NVME_CORE"
-                ) or (
-                    node.tools[KernelConfig].is_built_as_module("CONFIG_NVME_CORE")
-                    and node.tools[Lsinitrd].has_module("nvme-core.ko")
-                )
-                _has_nvme = node.tools[KernelConfig].is_built_in(
-                    "CONFIG_BLK_DEV_NVME"
-                ) or (
-                    node.tools[KernelConfig].is_built_as_module("CONFIG_BLK_DEV_NVME")
-                    and node.tools[Lsinitrd].has_module("nvme.ko")
-                )
-                information[KEY_NVME_ENABLED] = _has_nvme_core and _has_nvme
-                node.log.debug(f"nvme enabled: {information[KEY_NVME_ENABLED]}")
+                node.log.debug("detecting vm generation...")
+                information[KEY_VM_GENERATION] = node.tools[
+                    VmGeneration
+                ].get_generation()
+                node.log.debug(f"vm generation: {information[KEY_VM_GENERATION]}")
+
+                if node.capture_kernel_config:
+                    node.log.debug("detecting mana driver enabled...")
+                    information[
+                        KEY_MANA_DRIVER_ENABLED
+                    ] = node.nics.is_mana_driver_enabled()
+                    node.log.debug("detecting nvme driver enabled...")
+                    _has_nvme_core = node.tools[KernelConfig].is_built_in(
+                        "CONFIG_NVME_CORE"
+                    ) or (
+                        node.tools[KernelConfig].is_built_as_module("CONFIG_NVME_CORE")
+                        and node.tools[Lsinitrd].has_module("nvme-core.ko")
+                    )
+
+                    _has_nvme = node.tools[KernelConfig].is_built_in(
+                        "CONFIG_BLK_DEV_NVME"
+                    ) or (
+                        node.tools[KernelConfig].is_built_as_module(
+                            "CONFIG_BLK_DEV_NVME"
+                        )
+                        and node.tools[Lsinitrd].has_module("nvme.ko")
+                    )
+
+                    information[KEY_NVME_ENABLED] = _has_nvme_core and _has_nvme
+                    node.log.debug(f"nvme enabled: {information[KEY_NVME_ENABLED]}")
 
         node_runbook = node.capability.get_extended_runbook(AzureNodeSchema, AZURE)
         if node_runbook:
