@@ -599,7 +599,7 @@ class Sriov(TestSuite):
             ).is_equal_to(False)
 
         # disable and enable sriov in network interface level
-        sriov_disable_enable(environment, 3)
+        sriov_disable_enable(environment, 3, False)
         # check VF still paired with synthetic nic
         vm_nics = initialize_nic_info(environment)
 
