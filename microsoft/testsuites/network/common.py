@@ -208,8 +208,8 @@ def cleanup_iperf3(environment: Environment) -> None:
 def sriov_disable_enable(
     environment: Environment,
     times: int = 4,
-    wait: bool = True,
-) -> None:
+    reset_connections: bool = True,
+    ) -> None:
     initialize_nic_info(environment)
     sriov_basic_test(environment)
     node = cast(RemoteNode, environment.nodes[0])
@@ -218,11 +218,14 @@ def sriov_disable_enable(
         sriov_is_enabled = network_interface_feature.is_enabled_sriov()
         network_interface_feature.switch_sriov(
             enable=not sriov_is_enabled,
-            wait=wait,
+            reset_connections=reset_connections
         )
     sriov_is_enabled = network_interface_feature.is_enabled_sriov()
     if not sriov_is_enabled:
-        network_interface_feature.switch_sriov(enable=True, wait=wait)
+        network_interface_feature.switch_sriov(
+            enable=True,
+            reset_connections=reset_connections
+        )
     sriov_basic_test(environment)
 
 
