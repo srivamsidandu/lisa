@@ -363,9 +363,7 @@
             },
             "name": "[parameters('nodes')[copyIndex('vmCopy')]['name']]",
             "location": "[parameters('nodes')[copyIndex('vmCopy')]['location']]",
-            "tags": {
-                "TipNode.SessionId": "4cc5b3f0-46e0-42b2-a01f-dfd4be2bbf6e"
-            },
+            "tags": "[parameters('vm_tags')]",
             "plan": "[parameters('nodes')[copyIndex('vmCopy')]['purchase_plan']]",
             "dependsOn": [
                 "ultraDisks",
