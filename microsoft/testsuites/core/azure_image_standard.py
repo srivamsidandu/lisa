@@ -234,6 +234,9 @@ class AzureImageStandard(TestSuite):
         ),
         # pam_unix,pam_faillock
         re.compile(r"^(.*pam_unix,pam_faillock.*)$", re.M),
+        # These messages mean that rngd cannot use CPU Time Jitter Based Non-Physical # True Random Number Generator(JITTER Entropy generator) for generating random # numbers. In this case, rngd will use other generators available in the
+        # system, so this is no harm and can be ignored.
+        re.compile(r"^(.*rngd: JITTER rng fails with code 2.*)$", re.M),
     ]
 
     @TestCaseMetadata(
