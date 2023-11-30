@@ -230,10 +230,10 @@ class Xfstests(Tool):
                     # try to install the compatible version of xfsprogs-devel with
                     # xfsprogs package
                     posix_os.install_packages(f"xfsprogs-devel-{version_string}")
-                    posix_os.install_packages(
-                        "http://mirror.centos.org/centos/7/os/x86_64/Packages/"
-                        "xfsprogs-devel-4.5.0-22.el7.x86_64.rpm"
-                    )
+                    # posix_os.install_packages(
+                    #     "http://mirror.centos.org/centos/7/os/x86_64/Packages/"
+                    #     "xfsprogs-devel-4.5.0-22.el7.x86_64.rpm"
+                    # )
                     # check if xfsprogs-devel is installed successfully
                     assert_that(posix_os.package_exists("xfsprogs-devel")).described_as(
                         "xfsprogs-devel not installed successfully, please check "
