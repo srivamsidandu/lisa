@@ -18,7 +18,7 @@ from lisa import (
     simple_requirement,
 )
 from lisa.features import Disk, Nvme
-from lisa.operating_system import BSD, Oracle, Redhat, Windows
+from lisa.operating_system import BSD, Debian, Oracle, Redhat, Windows
 from lisa.sut_orchestrator import AZURE
 from lisa.sut_orchestrator.azure.common import (
     check_or_create_storage_account,
@@ -130,7 +130,7 @@ class Xfstesting(TestSuite):
     # VM will hung during running case xfs/520
     # commit d0c7feaf8767 ("xfs: add agf freeblocks verify in xfs_agf_verify")
     # TODO: will figure out the detailed reason of every excluded case.
-    excluded_tests = (
+    EXCLUDED_TEST = (
         "generic/211 generic/430 generic/431 generic/434 xfs/438 xfs/490"
         + " btrfs/007 btrfs/178 btrfs/244 btrfs/262"
         + " xfs/030 xfs/032 xfs/050 xfs/052 xfs/106 xfs/107 xfs/122 xfs/132 xfs/138"
@@ -141,7 +141,10 @@ class Xfstesting(TestSuite):
 
     def before_case(self, log: Logger, **kwargs: Any) -> None:
         node = kwargs["node"]
+        self.excluded_tests = self.EXCLUDED_TEST
         if isinstance(node.os, Oracle) and (node.os.information.version <= "9.0.0"):
+            self.excluded_tests = self.excluded_tests + " btrfs/299"
+        if isinstance(node.os, Debian):
             self.excluded_tests = self.excluded_tests + " btrfs/299"
 
     @TestCaseMetadata(
