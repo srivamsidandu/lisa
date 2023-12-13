@@ -13,8 +13,9 @@ from lisa import (
     schema,
     search_space,
 )
+from lisa.features import NestedVirtualization
 from lisa.operating_system import CBLMariner, Ubuntu
-from lisa.testsuite import TestResult
+from lisa.testsuite import TestResult, simple_requirement
 from lisa.tools import Ls, Lscpu, Modprobe, Usermod
 from lisa.util import SkippedException
 from microsoft.testsuites.cloud_hypervisor.ch_tests_tool import CloudHypervisorTests
@@ -53,11 +54,10 @@ class CloudHypervisorTestSuite(TestSuite):
         """,
         priority=3,
         timeout=CloudHypervisorTests.CASE_TIME_OUT,
-        requirement=node_requirement(
-            node=schema.NodeSpace(
-                core_count=search_space.IntRange(min=16),
-                memory_mb=search_space.IntRange(min=16 * 1024),
-            ),
+        requirement=simple_requirement(
+            min_core_count=16,
+            min_memory_mb=16 * 1024,
+            supported_features=[NestedVirtualization],
         ),
     )
     def verify_cloud_hypervisor_integration_tests(
