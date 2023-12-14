@@ -278,16 +278,16 @@ class KVMPerformance(TestSuite):  # noqa
                 client_nic_name=self._NIC_NAME,
                 test_case_name=inspect.stack()[1][3],
             )
-        finally:
-            try:
-                # stop running QEMU instances
-                node.tools[Qemu].delete_vm()
+        # finally:
+        #     try:
+        #         # stop running QEMU instances
+        #         node.tools[Qemu].delete_vm()
 
-                # clear bridge and taps
-                node.tools[Ip].delete_interface(self._BR_NAME)
-            except Exception as e:
-                log.debug(f"Failed to clean up vm: {e}")
-                node.mark_dirty()
+        #         # clear bridge and taps
+        #         node.tools[Ip].delete_interface(self._BR_NAME)
+        #     except Exception as e:
+        #         log.debug(f"Failed to clean up vm: {e}")
+        #         node.mark_dirty()
 
     @TestCaseMetadata(
         description="""
