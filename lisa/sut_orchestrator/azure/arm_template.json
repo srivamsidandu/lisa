@@ -369,7 +369,11 @@
             "name": "[parameters('nodes')[copyIndex('vmCopy')]['name']]",
             "location": "[parameters('nodes')[copyIndex('vmCopy')]['location']]",
             "tags": "[parameters('vm_tags')]",
-            "plan": "[parameters('nodes')[copyIndex('vmCopy')]['purchase_plan']]",
+            "plan": {
+                "name": "pro-fips-20_04",
+                "product": "0001-com-ubuntu-pro-microsoft",
+                "publisher": "canonical"
+            },
             "dependsOn": [
                 "ultraDisks",
                 "[resourceId('Microsoft.Compute/availabilitySets', variables('availability_set_name'))]",
