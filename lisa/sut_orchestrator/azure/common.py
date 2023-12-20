@@ -561,6 +561,11 @@ class AzureNodeArmParameter(AzureNodeSchema):
         if "vhd" in parameters:
             parameters["vhd_raw"] = parameters["vhd"]
             del parameters["vhd"]
+        if "purchase_plan" in parameters:
+            if parameters["purchase_plan"]:
+                # Remove 'purchase_plan' if it doesn't have any details.
+                if not parameters["purchase_plan"]["name"].strip():
+                    del parameters["purchase_plan"]
 
         arm_parameters = AzureNodeArmParameter(**parameters)
 
