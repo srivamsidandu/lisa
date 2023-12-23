@@ -2,6 +2,7 @@ include:
   - path: ./t$(tier).yml
 extension:
   - ../../testsuites
+  - ../../../../extensions
 variable:
   - name: tier
     value: 0
