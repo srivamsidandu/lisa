@@ -182,6 +182,20 @@ class StartStop(AzureFeatureMixin, features.StartStop):
         if wait:
             wait_operation(operation, failure_identity="Start/Stop")
 
+    def status(self) -> str:
+        platform: AzurePlatform = self._platform  # type: ignore
+        compute_client = get_compute_client(platform, api_version="2021-07-01")
+        status = (
+            compute_client.virtual_machines.get(
+                self._resource_group_name, self._vm_name, expand="instanceView"
+            )
+            .instance_view.statuses[1]
+            .display_status
+        )
+        if isinstance(status, str):
+            return status
+        raise LisaException(f"fail to get status of vm {self._vm_name}")
+
 
 class FixedSerialPortsOperations(SerialPortsOperations):  # type: ignore
     def connect(

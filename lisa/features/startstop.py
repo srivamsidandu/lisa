@@ -48,3 +48,6 @@ class StartStop(Feature):
         self._log.info("restarting")
         self._restart(wait=wait)
         self._node.close()
+
+    def status(self) -> str:
+        return ""

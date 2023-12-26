@@ -13,8 +13,9 @@ from lisa import (
     TestCaseMetadata,
     TestSuite,
     TestSuiteMetadata,
+    schema,
 )
-from lisa.features import HibernationEnabled, Sriov, Synthetic
+from lisa.features import Disk, HibernationEnabled, Sriov, Synthetic
 from lisa.node import Node
 from lisa.operating_system import BSD, Windows
 from lisa.testsuite import simple_requirement
@@ -200,9 +201,85 @@ class Power(TestSuite):
         node = cast(RemoteNode, environment.nodes[0])
         is_distro_supported(node)
         stress_ng_tool = node.tools[StressNg]
-        stress_ng_tool.launch_vm_stressor(16, "100%", 300)
+        stress_ng_tool.launch_vm_stressor(16, "90%", 300)
+        verify_hibernation(node, log, ignore_call_trace=True)
+        stress_ng_tool.launch_vm_stressor(16, "90%", 300)
+
+    @TestCaseMetadata(
+        description="""
+            This case is to verify vm hibernation with synthetic network with max nics.
+            Steps,
+            1. Install HibernationSetup tool to prepare prerequisite for vm
+             hibernation.
+            2. Get nics info before hibernation.
+            3. Hibernate vm.
+            4. Check vm is inaccessible.
+            5. Resume vm by starting vm.
+            6. Check vm hibernation successfully by checking keywords in dmesg.
+            6. Get nics info after hibernation.
+            7. Fail the case if nics count and info changes after vm resume.
+        """,
+        priority=3,
+        requirement=simple_requirement(
+            min_nic_count=8,
+            network_interface=Synthetic(),
+            supported_features=[HibernationEnabled()],
+            disk=schema.DiskOptionSettings(osdisk_size_in_gb=180),
+        ),
+    )
+    def verify_hibernation_synthetic_network_max_nics(
+        self, environment: Environment, log: Logger
+    ) -> None:
+        node = cast(RemoteNode, environment.nodes[0])
+        is_distro_supported(node)
         verify_hibernation(node, log)
-        stress_ng_tool.launch_vm_stressor(16, "100%", 300)
+
+    @TestCaseMetadata(
+        description="""
+            This case is to verify vm hibernation with sriov network with max nics.
+            It has the same steps with verify_hibernation_synthetic_network_max_nics.
+        """,
+        priority=3,
+        requirement=simple_requirement(
+            min_nic_count=8,
+            network_interface=Sriov(),
+            supported_features=[HibernationEnabled()],
+            disk=schema.DiskOptionSettings(osdisk_size_in_gb=180),
+        ),
+    )
+    def verify_hibernation_sriov_network_max_nics(
+        self, environment: Environment, log: Logger
+    ) -> None:
+        node = cast(RemoteNode, environment.nodes[0])
+        is_distro_supported(node)
+        verify_hibernation(node, log)
+
+    @TestCaseMetadata(
+        description="""
+            This case is to verify vm hibernation with max data disks.
+            It has the same steps with verify_hibernation_synthetic_network_max_nics.
+        """,
+        priority=3,
+        requirement=simple_requirement(
+            min_nic_count=8,
+            supported_features=[HibernationEnabled()],
+            min_data_disk_count=32,
+            disk=schema.DiskOptionSettings(osdisk_size_in_gb=180),
+        ),
+    )
+    def verify_hibernation_max_data_disks(
+        self, environment: Environment, log: Logger
+    ) -> None:
+        node = cast(RemoteNode, environment.nodes[0])
+        is_distro_supported(node)
+        disk = node.features[Disk]
+        data_disks_before_hibernation = disk.get_raw_data_disks()
+        verify_hibernation(node, log)
+        data_disks_after_hibernation = disk.get_raw_data_disks()
+        assert_that(
+            len(data_disks_before_hibernation),
+            "data disks are inconsistent after hibernation",
+        ).is_equal_to(len(data_disks_after_hibernation))
 
     def after_case(self, log: Logger, **kwargs: Any) -> None:
         environment: Environment = kwargs.pop("environment")
