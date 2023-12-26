@@ -454,6 +454,10 @@ class DiskOptionSettings(FeatureSettings):
             decoder=partial(search_space.decode_set_space_by_type, base_type=DiskType)
         ),
     )
+    osdisk_size_in_gb: search_space.CountSpace = field(
+        default_factory=partial(search_space.IntRange, min=30),
+        metadata=field_metadata(decoder=search_space.decode_count_space),
+    )
     data_disk_type: Optional[
         Union[search_space.SetSpace[DiskType], DiskType]
     ] = field(  # type:ignore
@@ -546,11 +550,13 @@ class DiskOptionSettings(FeatureSettings):
             and self.data_disk_size == o.data_disk_size
             and self.max_data_disk_count == o.max_data_disk_count
             and self.disk_controller_type == o.disk_controller_type
+            and self.osdisk_size_in_gb == o.osdisk_size_in_gb
         )
 
     def __repr__(self) -> str:
         return (
             f"os_disk_type: {self.os_disk_type},"
+            f"osdisk_size_in_gb: {self.osdisk_size_in_gb},"
             f"data_disk_type: {self.data_disk_type},"
             f"count: {self.data_disk_count},"
             f"caching: {self.data_disk_caching_type},"
@@ -594,6 +600,12 @@ class DiskOptionSettings(FeatureSettings):
             ),
             "data_disk_throughput",
         )
+        result.merge(
+            search_space.check_countspace(
+                self.osdisk_size_in_gb, capability.osdisk_size_in_gb
+            ),
+            "osdisk_size_in_gb",
+        )
         return result
 
     def _get_key(self) -> str:
@@ -601,7 +613,8 @@ class DiskOptionSettings(FeatureSettings):
             f"{super()._get_key()}/{self.os_disk_type}/{self.data_disk_type}/"
             f"{self.data_disk_count}/{self.data_disk_caching_type}/"
             f"{self.data_disk_iops}/{self.data_disk_throughput}/"
-            f"{self.data_disk_size}/{self.disk_controller_type}"
+            f"{self.data_disk_size}/{self.disk_controller_type}/"
+            f"{self.osdisk_size_in_gb}"
         )
 
     def _call_requirement_method(
@@ -657,7 +670,10 @@ class DiskOptionSettings(FeatureSettings):
                 capability.disk_controller_type,
                 disk_controller_type_priority,
             )
-
+        if self.osdisk_size_in_gb or capability.osdisk_size_in_gb:
+            value.osdisk_size_in_gb = search_space_countspace_method(
+                self.osdisk_size_in_gb, capability.osdisk_size_in_gb
+            )
         return value
 
 

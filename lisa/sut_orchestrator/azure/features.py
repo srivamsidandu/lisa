@@ -1464,6 +1464,7 @@ class AzureDiskOptionSettings(schema.DiskOptionSettings):
                 self.data_disk_size, capability.data_disk_size
             )
 
+        value.osdisk_size_in_gb = self.osdisk_size_in_gb
         # all caching types are supported, so just take the value from requirement.
         value.data_disk_caching_type = self.data_disk_caching_type
 

@@ -1422,6 +1422,10 @@ class AzurePlatform(Platform):
     ) -> AzureNodeArmParameter:
         runbook = capability.get_extended_runbook(AzureNodeSchema, type_name=AZURE)
         arm_parameters = AzureNodeArmParameter.from_node_runbook(runbook)
+        if capability.disk and isinstance(capability.disk.osdisk_size_in_gb, int):
+            osdisk_size_in_gb = capability.disk.osdisk_size_in_gb
+        else:
+            osdisk_size_in_gb = 0
 
         if arm_parameters.vhd and arm_parameters.vhd.vhd_path:
             # vhd is higher priority
@@ -1437,11 +1441,13 @@ class AzurePlatform(Platform):
             arm_parameters.osdisk_size_in_gb = max(
                 arm_parameters.osdisk_size_in_gb,
                 self._get_vhd_os_disk_size(arm_parameters.vhd.vhd_path),
+                osdisk_size_in_gb,
             )
         elif arm_parameters.shared_gallery:
             arm_parameters.osdisk_size_in_gb = max(
                 arm_parameters.osdisk_size_in_gb,
                 self._get_sig_os_disk_size(arm_parameters.shared_gallery),
+                osdisk_size_in_gb,
             )
         else:
             assert (
@@ -1459,6 +1465,7 @@ class AzurePlatform(Platform):
                     _get_disk_size_in_gb(
                         image_info.os_disk_image.additional_properties
                     ),
+                    osdisk_size_in_gb,
                 )
                 if not arm_parameters.purchase_plan and image_info.plan:
                     # expand values for lru cache
