@@ -62,6 +62,7 @@ from lisa.util import (
     NotMeetRequirementException,
     ResourceAwaitableException,
     SkippedException,
+    check_panic,
     constants,
     dump_file,
     field_metadata,
@@ -678,7 +679,7 @@ class AzurePlatform(Platform):
             else:
                 log.debug("not wait deleting")
 
-    def _save_console_log(
+    def _check_panic(
         self, resource_group_name: str, environment: Environment, log: Logger
     ) -> None:
         compute_client = get_compute_client(self)
@@ -696,6 +697,8 @@ class AzurePlatform(Platform):
             )
             log_file_name = saved_path / f"{vm.name}_serial_console.log"
             log_file_name.write_bytes(log_response_content)
+
+            check_panic(log_response_content.decode("utf-8"), "provision", log)
 
     def _delete_boot_diagnostic_container(
         self, resource_group_name: str, log: Logger
@@ -1570,7 +1573,7 @@ class AzurePlatform(Platform):
                         deployment_operation, time_out=300, failure_identity="deploy"
                     )
                 except LisaTimeoutException:
-                    self._save_console_log(resource_group_name, environment, log)
+                    self._check_panic(resource_group_name, environment, log)
                     continue
                 break
         except HttpResponseError as identifier:
