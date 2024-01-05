@@ -14,6 +14,7 @@ from time import sleep
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union, cast
 
 import paramiko
+import paramiko.transport
 import spur  # type: ignore
 import spurplus  # type: ignore
 from func_timeout import FunctionTimedOut, func_set_timeout  # type: ignore
@@ -148,8 +149,9 @@ def try_connect(
     # So try with paramiko firstly.
     paramiko_client = paramiko.SSHClient()
 
-    # Use ssh-rsa as preferred public key type to resolve ssh issues on old distros.
-    paramiko.Transport._preferred_pubkeys = ("ssh-rsa",)
+    if hasattr(paramiko.transport.Transport, "preferred_pubkeys"):
+        # Use ssh-rsa as preferred public key type to resolve ssh issues on old distros.
+        paramiko.transport.Transport.preferred_pubkeys = ("ssh-rsa",)
 
     # Use base policy, do nothing on host key. The host key shouldn't be saved
     # locally, or make any warning message. The IP addresses in cloud may be
