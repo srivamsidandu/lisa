@@ -149,9 +149,14 @@ def try_connect(
     # So try with paramiko firstly.
     paramiko_client = paramiko.SSHClient()
 
-    if hasattr(paramiko.transport.Transport, "preferred_pubkeys"):
+    if hasattr(paramiko.Transport, "preferred_keys"):
         # Use ssh-rsa as preferred public key type to resolve ssh issues on old distros.
-        paramiko.transport.Transport.preferred_pubkeys = ("ssh-rsa",)
+        preferred_keys = paramiko.transport.Transport._preferred_keys
+        # Ensure 'ssh-rsa' is in the tuple and put it in the first position
+        preferred_keys = ("ssh-rsa",) + tuple(
+            key for key in preferred_keys if key != "ssh-rsa"
+        )
+        paramiko.Transport.preferred_pubkeys = preferred_keys
 
     # Use base policy, do nothing on host key. The host key shouldn't be saved
     # locally, or make any warning message. The IP addresses in cloud may be
