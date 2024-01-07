@@ -167,8 +167,7 @@ def try_connect(
                 key_filename=connection_info.private_key_file,
                 banner_timeout=10,
                 sock=sock,
-                look_for_keys=False,
-                allow_agent=False,
+                disabled_algorithms={"keys": ["rsa-sha2-256", "rsa-sha2-512"]},
             )
 
             stdin, stdout, _ = paramiko_client.exec_command("cmd\n")
